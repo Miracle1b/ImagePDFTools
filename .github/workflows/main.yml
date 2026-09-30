@@ -38,4 +38,39 @@ jobs:
         run: |
           FILE="$PROJECT_DIR/app/src/main/AndroidManifest.xml"
           if [ -f "$FILE" ]; then
-            sed -i
+            sed -i 's/Image & PDF Tools/Image \&amp; PDF Tools/g' "$FILE"
+          fi
+
+      - name: Fix minSdk
+        run: |
+          FILE="$PROJECT_DIR/app/build.gradle.kts"
+          if [ -f "$FILE" ]; then
+            sed -i 's/minSdk *= *23/minSdk = 24/g' "$FILE"
+            sed -i 's/minSdkVersion *= *23/minSdkVersion = 24/g' "$FILE"
+          fi
+
+      - name: Fix Java JVM target
+        run: |
+          FILE="$PROJECT_DIR/app/build.gradle.kts"
+
+          cat >> "$FILE" <<'EOF'
+
+          // IMAGEPDFTOOLS_JAVA17
+          android {
+              compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
+          }
+          EOF
+
+      - name: Build APK
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          gradle clean assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ImagePDFTools-debug-apk
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
