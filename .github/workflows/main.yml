@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android AAB
 
 on:
   push:
@@ -64,13 +64,13 @@ jobs:
           }
           EOF
 
-      - name: Build APK
+      - name: Build Release AAB
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          gradle clean assembleDebug --stacktrace
+          gradle clean bundleRelease --stacktrace
 
-      - name: Upload APK
+      - name: Upload Release AAB
         uses: actions/upload-artifact@v4
         with:
-          name: ImagePDFTools-debug-apk
-          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
+          name: ImagePDFTools-release-aab
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/bundle/release/*.aab
